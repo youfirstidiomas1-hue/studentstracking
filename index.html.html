@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Estudiante</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Iconos SVG simplificados
+        const CheckCircle = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        );
+
+        const Circle = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        );
+
+        const Target = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+        );
+
+        const Calendar = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+
+        const Loader = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`spin ${className}`}>
+                <line x1="12" y1="2" x2="12" y2="6"></line>
+                <line x1="12" y1="18" x2="12" y2="22"></line>
+                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                <line x1="2" y1="12" x2="6" y2="12"></line>
+                <line x1="18" y1="12" x2="22" y2="12"></line>
+                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+            </svg>
+        );
+
+        const StudentDashboard = () => {
+            const [email, setEmail] = useState('');
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [loading, setLoading] = useState(false);
+            const [tasks, setTasks] = useState([]);
+            const [currentTask, setCurrentTask] = useState(null);
+            const [objetivo, setObjetivo] = useState('');
+            const [error, setError] = useState('');
+
+            const AIRTABLE_API_KEY = 'patyqJ78c2IKeNQOF.a4f8f1b6e266809dbbc0d75cfe194fa5ce27c18dac46f65296200a732a1bff3d';
+            const BASE_ID = 'appyWFDAlx4JXBKJ1';
+            const TABLE_NAME = 'Fichas_Asignacion';
+
+            const fetchStudentData = async (studentEmail) => {
+                setLoading(true);
+                setError('');
+                
+                try {
+                    const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula={Email_Alumno}='${studentEmail}'`;
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al conectar con Airtable');
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.records.length === 0) {
+                        setError('No se encontraron tareas para este email');
+                        setLoading(false);
+                        return;
+                    }
+
+                    const allTasks = data.records.map(record => ({
+                        id: record.id,
+                        tarea: record.fields.Tarea_Actual || '',
+                        proxTarea: record.fields.ProX_Tarea || '',
+                        status: record.fields.Status_Tarea || 'en progreso',
+                        objetivo: record.fields.Objetivo || '',
+                        email: record.fields.Email_Alumno || '',
+                        createdTime: record.createdTime
+                    }));
+
+                    const current = allTasks.find(t => t.status === 'en progreso');
+                    const completed = allTasks.filter(t => t.status === 'completada');
+                    
+                    setCurrentTask(current);
+                    setTasks(completed);
+                    setObjetivo(allTasks[0]?.objetivo || 'Define tu objetivo');
+                    setIsLoggedIn(true);
+                    
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (email.trim()) {
+                    fetchStudentData(email.trim());
+                }
+            };
+
+            const markTaskComplete = async (taskId) => {
+                setLoading(true);
+                try {
+                    const proxTarea = currentTask?.proxTarea || '';
+                    
+                    const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}/${taskId}`;
+                    
+                    const updateFields = {
+                        Status_Tarea: 'completada'
+                    };
+                    
+                    if (proxTarea) {
+                        updateFields.Tarea_Actual = proxTarea;
+                        updateFields.ProX_Tarea = '';
+                        updateFields.Status_Tarea = 'en progreso';
+                    }
+                    
+                    const response = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            fields: updateFields
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error al actualizar la tarea');
+                    }
+
+                    await fetchStudentData(email);
+                    
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#2c0439' }}>
+                        <div className="w-full max-w-md">
+                            <div className="text-center mb-8">
+                                <h1 className="text-4xl font-bold text-white mb-2">🎮 Mi Tablero de Aprendizaje</h1>
+                                <p className="text-gray-300">Ingresa tu email para ver tus tareas</p>
+                            </div>
+                            
+                            <form onSubmit={handleLogin} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+                                <label className="block text-white text-sm font-medium mb-2">
+                                    Email del Alumno
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="tu.email@ejemplo.com"
+                                    className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-transparent focus:border-opacity-50 focus:outline-none mb-4"
+                                    style={{ borderColor: '#a37f47' }}
+                                    required
+                                />
+                                
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                                    style={{ backgroundColor: '#a37f47' }}
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center justify-center">
+                                            <Loader size={20} className="mr-2" />
+                                            Cargando...
+                                        </span>
+                                    ) : (
+                                        'Entrar a mi tablero'
+                                    )}
+                                </button>
+
+                                {error && (
+                                    <div className="mt-4 p-3 bg-red-500 bg-opacity-20 border border-red-400 rounded-lg text-white text-sm">
+                                        {error}
+                                    </div>
+                                )}
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen p-4 md:p-8" style={{ backgroundColor: '#2c0439' }}>
+                    <div className="max-w-6xl mx-auto">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">¡Hola! 👋</h1>
+                                <p className="text-gray-300">{email}</p>
+                            </div>
+                            <button
+                                onClick={() => setIsLoggedIn(false)}
+                                className="px-4 py-2 rounded-lg text-white hover:opacity-80"
+                                style={{ backgroundColor: '#a37f47' }}
+                            >
+                                Salir
+                            </button>
+                        </div>
+
+                        {currentTask && (
+                            <div className="mb-8 bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-6 md:p-8 shadow-2xl border-2" style={{ borderColor: '#a37f47' }}>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-center">
+                                        <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ backgroundColor: '#a37f47' }}>
+                                            <Calendar size={24} className="text-white" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Nueva Tarea Asignada</h2>
+                                            <p className="text-gray-300 text-sm">En progreso</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <p className="text-white text-lg mb-6">{currentTask.tarea}</p>
+                                
+                                {currentTask.proxTarea && (
+                                    <div className="mb-4 p-4 bg-white bg-opacity-10 rounded-lg border border-white border-opacity-20">
+                                        <p className="text-sm text-gray-300 mb-1">📋 Próxima tarea:</p>
+                                        <p className="text-white">{currentTask.proxTarea}</p>
+                                    </div>
+                                )}
+                                
+                                <button
+                                    onClick={() => markTaskComplete(currentTask.id)}
+                                    disabled={loading}
+                                    className="flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                                    style={{ backgroundColor: '#a37f47' }}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader size={20} className="animate-spin mr-2" />
+                                            Procesando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle size={20} className="mr-2" />
+                                            Marcar como completada
+                                            {currentTask.proxTarea && ' y pasar a la siguiente'}
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+
+                        {!currentTask && (
+                            <div className="mb-8 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                                <CheckCircle size={48} style={{ color: '#a37f47' }} className="mx-auto mb-4" />
+                                <h2 className="text-2xl font-bold text-white mb-2">¡Todo al día!</h2>
+                                <p className="text-gray-300">No tienes tareas pendientes en este momento</p>
+                            </div>
+                        )}
+
+                        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 md:p-8 mb-8">
+                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                                <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ backgroundColor: '#a37f47' }}>
+                                    📜
+                                </span>
+                                Mi Progreso
+                            </h2>
+
+                            <div className="relative">
+                                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-white bg-opacity-20"></div>
+
+                                {tasks.length > 0 ? (
+                                    tasks.map((task, index) => (
+                                        <div key={task.id} className="relative pl-12 pb-8">
+                                            <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#a37f47' }}>
+                                                <CheckCircle size={20} className="text-white" />
+                                            </div>
+                                            <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
+                                                <p className="text-white font-medium mb-1">{task.tarea}</p>
+                                                <p className="text-sm text-gray-400">✓ Completada</p>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="relative pl-12 pb-8">
+                                        <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20">
+                                            <Circle size={20} className="text-white" />
+                                        </div>
+                                        <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
+                                            <p className="text-gray-400">Aún no has completado ninguna tarea</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="relative pl-12">
+                                    <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#a37f47' }}>
+                                        <Target size={20} className="text-white" />
+                                    </div>
+                                    <div className="rounded-lg p-6 border-2" style={{ 
+                                        backgroundColor: '#2c0439',
+                                        borderColor: '#a37f47'
+                                    }}>
+                                        <h3 className="text-xl font-bold text-white mb-2">🎯 Tu Objetivo</h3>
+                                        <p className="text-white text-lg">{objetivo}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{tasks.length}</p>
+                                <p className="text-white">Tareas Completadas</p>
+                            </div>
+                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{currentTask ? 1 : 0}</p>
+                                <p className="text-white">Tarea Activa</p>
+                            </div>
+                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
+                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>
+                                    {tasks.length > 0 ? Math.round((tasks.length / (tasks.length + (currentTask ? 1 : 0))) * 100) : 0}%
+                                </p>
+                                <p className="text-white">Progreso</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<StudentDashboard />);
+    </script>
+</body>
+</html>
