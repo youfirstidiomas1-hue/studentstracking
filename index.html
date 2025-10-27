@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero de Estudiante</title>
+    <title>Student Dashboard</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -29,7 +29,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Iconos SVG simplificados
+        // Simple SVG Icons
         const CheckCircle = ({ size = 24, className = "" }) => (
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -82,7 +82,7 @@
             const [objetivo, setObjetivo] = useState('');
             const [error, setError] = useState('');
 
-            const AIRTABLE_API_KEY = 'patyqJ78c2IKeNQOF.a4f8f1b6e266809dbbc0d75cfe194fa5ce27c18dac46f65296200a732a1bff3d';
+            const AIRTABLE_API_KEY = 'patSWg2TI235NQVX3.6cef00bc1760cd0997807c32f4fd00d4322acd052e61c064e93661ff232a5992';
             const BASE_ID = 'appyWFDAlx4JXBKJ1';
             const TABLE_NAME = 'Fichas_Asignacion';
 
@@ -100,13 +100,13 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Error al conectar con Airtable');
+                        throw new Error('Error connecting to Airtable');
                     }
 
                     const data = await response.json();
                     
                     if (data.records.length === 0) {
-                        setError('No se encontraron tareas para este email');
+                        setError('No tasks found for this email');
                         setLoading(false);
                         return;
                     }
@@ -126,7 +126,7 @@
                     
                     setCurrentTask(current);
                     setTasks(completed);
-                    setObjetivo(allTasks[0]?.objetivo || 'Define tu objetivo');
+                    setObjetivo(allTasks[0]?.objetivo || 'Define your goal');
                     setIsLoggedIn(true);
                     
                 } catch (err) {
@@ -172,7 +172,7 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error('Error al actualizar la tarea');
+                        throw new Error('Error updating task');
                     }
 
                     await fetchStudentData(email);
@@ -189,19 +189,19 @@
                     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#2c0439' }}>
                         <div className="w-full max-w-md">
                             <div className="text-center mb-8">
-                                <h1 className="text-4xl font-bold text-white mb-2">🎮 Mi Tablero de Aprendizaje</h1>
-                                <p className="text-gray-300">Ingresa tu email para ver tus tareas</p>
+                                <h1 className="text-4xl font-bold text-white mb-2">🎮 My Learning Dashboard</h1>
+                                <p className="text-gray-300">Enter your email to view your tasks</p>
                             </div>
                             
                             <form onSubmit={handleLogin} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
                                 <label className="block text-white text-sm font-medium mb-2">
-                                    Email del Alumno
+                                    Student Email
                                 </label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="tu.email@ejemplo.com"
+                                    placeholder="your.email@example.com"
                                     className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-transparent focus:border-opacity-50 focus:outline-none mb-4"
                                     style={{ borderColor: '#a37f47' }}
                                     required
@@ -216,10 +216,10 @@
                                     {loading ? (
                                         <span className="flex items-center justify-center">
                                             <Loader size={20} className="mr-2" />
-                                            Cargando...
+                                            Loading...
                                         </span>
                                     ) : (
-                                        'Entrar a mi tablero'
+                                        'Enter my dashboard'
                                     )}
                                 </button>
 
@@ -239,7 +239,7 @@
                     <div className="max-w-6xl mx-auto">
                         <div className="flex justify-between items-center mb-8">
                             <div>
-                                <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">¡Hola! 👋</h1>
+                                <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">Hello! 👋</h1>
                                 <p className="text-gray-300">{email}</p>
                             </div>
                             <button
@@ -247,7 +247,7 @@
                                 className="px-4 py-2 rounded-lg text-white hover:opacity-80"
                                 style={{ backgroundColor: '#a37f47' }}
                             >
-                                Salir
+                                Logout
                             </button>
                         </div>
 
@@ -259,8 +259,8 @@
                                             <Calendar size={24} className="text-white" />
                                         </div>
                                         <div>
-                                            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Nueva Tarea Asignada</h2>
-                                            <p className="text-gray-300 text-sm">En progreso</p>
+                                            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">New Task Assigned</h2>
+                                            <p className="text-gray-300 text-sm">In progress</p>
                                         </div>
                                     </div>
                                 </div>
@@ -269,7 +269,7 @@
                                 
                                 {currentTask.proxTarea && (
                                     <div className="mb-4 p-4 bg-white bg-opacity-10 rounded-lg border border-white border-opacity-20">
-                                        <p className="text-sm text-gray-300 mb-1">📋 Próxima tarea:</p>
+                                        <p className="text-sm text-gray-300 mb-1">📋 Next task:</p>
                                         <p className="text-white">{currentTask.proxTarea}</p>
                                     </div>
                                 )}
@@ -283,13 +283,13 @@
                                     {loading ? (
                                         <>
                                             <Loader size={20} className="animate-spin mr-2" />
-                                            Procesando...
+                                            Processing...
                                         </>
                                     ) : (
                                         <>
                                             <CheckCircle size={20} className="mr-2" />
-                                            Marcar como completada
-                                            {currentTask.proxTarea && ' y pasar a la siguiente'}
+                                            Mark as completed
+                                            {currentTask.proxTarea && ' and move to next'}
                                         </>
                                     )}
                                 </button>
@@ -299,8 +299,8 @@
                         {!currentTask && (
                             <div className="mb-8 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
                                 <CheckCircle size={48} style={{ color: '#a37f47' }} className="mx-auto mb-4" />
-                                <h2 className="text-2xl font-bold text-white mb-2">¡Todo al día!</h2>
-                                <p className="text-gray-300">No tienes tareas pendientes en este momento</p>
+                                <h2 className="text-2xl font-bold text-white mb-2">All caught up!</h2>
+                                <p className="text-gray-300">You have no pending tasks at the moment</p>
                             </div>
                         )}
 
@@ -309,7 +309,7 @@
                                 <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ backgroundColor: '#a37f47' }}>
                                     📜
                                 </span>
-                                Mi Progreso
+                                My Progress
                             </h2>
 
                             <div className="relative">
@@ -323,7 +323,7 @@
                                             </div>
                                             <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
                                                 <p className="text-white font-medium mb-1">{task.tarea}</p>
-                                                <p className="text-sm text-gray-400">✓ Completada</p>
+                                                <p className="text-sm text-gray-400">✓ Completed</p>
                                             </div>
                                         </div>
                                     ))
@@ -333,7 +333,7 @@
                                             <Circle size={20} className="text-white" />
                                         </div>
                                         <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
-                                            <p className="text-gray-400">Aún no has completado ninguna tarea</p>
+                                            <p className="text-gray-400">You haven't completed any tasks yet</p>
                                         </div>
                                     </div>
                                 )}
@@ -346,7 +346,7 @@
                                         backgroundColor: '#2c0439',
                                         borderColor: '#a37f47'
                                     }}>
-                                        <h3 className="text-xl font-bold text-white mb-2">🎯 Tu Objetivo</h3>
+                                        <h3 className="text-xl font-bold text-white mb-2">🎯 Your Goal</h3>
                                         <p className="text-white text-lg">{objetivo}</p>
                                     </div>
                                 </div>
@@ -356,17 +356,17 @@
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
                                 <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{tasks.length}</p>
-                                <p className="text-white">Tareas Completadas</p>
+                                <p className="text-white">Tasks Completed</p>
                             </div>
                             <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
                                 <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{currentTask ? 1 : 0}</p>
-                                <p className="text-white">Tarea Activa</p>
+                                <p className="text-white">Active Task</p>
                             </div>
                             <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
                                 <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>
                                     {tasks.length > 0 ? Math.round((tasks.length / (tasks.length + (currentTask ? 1 : 0))) * 100) : 0}%
                                 </p>
-                                <p className="text-white">Progreso</p>
+                                <p className="text-white">Progress</p>
                             </div>
                         </div>
                     </div>
