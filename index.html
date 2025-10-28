@@ -3,399 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>My Learning Journey 🎮</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            box-sizing: border-box;
         }
-        .spin {
-            animation: spin 1s linear infinite;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #2c0439 0%, #1a0225 100%);
+            min-height: 100vh;
+            color: white;
         }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header with motivational message */
+        .hero-header {
+            background: linear-gradient(135deg, rgba(163, 127, 71, 0.2) 0%, rgba(163, 127, 71, 0.05) 100%);
+            border: 2px solid #a37f47;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(163, 127, 71, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #a37f47;
+            text-shadow: 0 0 20px rgba(163, 127, 71, 0.5);
+        }
+
+        .motivational-quote {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: #fff;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .quote-author {
+            font-size: 1rem;
+            color: #a37f47;
+            font-weight: 600;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: rgba(163, 127, 71, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #a37f47;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(163, 127, 71, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #a37f47;
+            box-shadow: 0 10px 30px rgba(163, 127, 71, 0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #a37f47, transparent);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #a37f47;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(163, 127, 71, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #a37f47;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            height: 40px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #a37f47, #d4af37);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 15px;
+            transition: width 1s ease;
+            box-shadow: 0 0 20px rgba(163, 127, 71, 0.5);
+        }
+
+        .progress-text {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #2c0439;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .goal-section {
+            background: linear-gradient(135deg, rgba(163, 127, 71, 0.2), rgba(163, 127, 71, 0.05));
+            border: 2px solid #a37f47;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .goal-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #a37f47;
+        }
+
+        .goal-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        /* Airtable Interface Container */
+        .interface-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(163, 127, 71, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 600px;
+        }
+
+        .interface-container h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #a37f47;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .airtable-iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #a37f47;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .motivational-quote {
+                font-size: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Celebration Effect */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <!-- Hero Header with Motivational Quote -->
+        <div class="hero-header">
+            <div class="hero-content">
+                <h1>🎮 Your Learning Journey</h1>
+                <div class="motivational-quote" id="dailyQuote">Loading inspiration...</div>
+                <div class="quote-author" id="quoteAuthor"></div>
+                <div class="date-badge" id="currentDate"></div>
+            </div>
+        </div>
 
-    <script type="text/babel">
-        const { useState } = React;
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="completedTasks">-</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
 
-        // SVG Icons
-        const CheckCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="currentStreak">-</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
 
-        const Circle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-        );
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value" id="totalProgress">-</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+        </div>
 
-        const Target = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="6"></circle>
-                <circle cx="12" cy="12" r="2"></circle>
-            </svg>
-        );
-
-        const Calendar = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-        );
-
-        const Loader = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`spin ${className}`}>
-                <line x1="12" y1="2" x2="12" y2="6"></line>
-                <line x1="12" y1="18" x2="12" y2="22"></line>
-                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-                <line x1="2" y1="12" x2="6" y2="12"></line>
-                <line x1="18" y1="12" x2="22" y2="12"></line>
-                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-            </svg>
-        );
-
-        const StudentDashboard = () => {
-            const [email, setEmail] = useState('');
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [loading, setLoading] = useState(false);
-            const [tasks, setTasks] = useState([]);
-            const [currentTask, setCurrentTask] = useState(null);
-            const [objetivo, setObjetivo] = useState('');
-            const [error, setError] = useState('');
-
-            // VERIFIED CONFIGURATION - New token created 2025
-            const AIRTABLE_API_KEY = 'patXtUSWyCVSFBJg9.c6f26b3dbf9f7b846be5cfe5997ae55db03237ea45f6e7eed00d51bd046892cd';
-            const BASE_ID = 'appyWFDAlx4JXBKJ1';
-            const TABLE_NAME = 'Fichas_Asignacion';
-
-            const fetchStudentData = async (studentEmail) => {
-                setLoading(true);
-                setError('');
-                
-                try {
-                    const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}?filterByFormula={Email_Alumno}='${studentEmail}'`;
-                    
-                    console.log('Fetching from:', url);
-                    
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-                        }
-                    });
-
-                    console.log('Response status:', response.status);
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('Error response:', errorData);
-                        throw new Error(`Error ${response.status}: ${errorData.error?.message || 'Connection failed'}`);
-                    }
-
-                    const data = await response.json();
-                    console.log('Data received:', data);
-                    
-                    if (data.records.length === 0) {
-                        setError(`No tasks found for ${studentEmail}. Please check the email is correct.`);
-                        setLoading(false);
-                        return;
-                    }
-
-                    // Map the records with the exact field names from your Airtable
-                    const allTasks = data.records.map(record => ({
-                        id: record.id,
-                        tarea: record.fields.Tarea_Actual || '',
-                        proxTarea: record.fields.ProX_Tarea || '',
-                        status: record.fields.Status_Tarea || 'en progreso',
-                        objetivo: record.fields.Objetivo || '',
-                        email: record.fields.Email_Alumno || '',
-                        createdTime: record.createdTime
-                    }));
-
-                    console.log('Mapped tasks:', allTasks);
-
-                    // Filter tasks by status
-                    const current = allTasks.find(t => t.status.toLowerCase() === 'en progreso');
-                    const completed = allTasks.filter(t => t.status.toLowerCase() === 'completada' || t.status.toLowerCase() === 'completado');
-                    
-                    setCurrentTask(current);
-                    setTasks(completed);
-                    setObjetivo(allTasks[0]?.objetivo || 'Define your goal');
-                    setIsLoggedIn(true);
-                    
-                } catch (err) {
-                    console.error('Fetch error:', err);
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                if (email.trim()) {
-                    fetchStudentData(email.trim());
-                }
-            };
-
-            const markTaskComplete = async (taskId) => {
-                setLoading(true);
-                try {
-                    const proxTarea = currentTask?.proxTarea || '';
-                    
-                    const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}/${taskId}`;
-                    
-                    const updateFields = {
-                        Status_Tarea: 'completada'
-                    };
-                    
-                    // If there's a next task, make it the current task
-                    if (proxTarea) {
-                        updateFields.Tarea_Actual = proxTarea;
-                        updateFields.ProX_Tarea = '';
-                        updateFields.Status_Tarea = 'en progreso';
-                    }
-                    
-                    console.log('Updating task:', taskId, 'with:', updateFields);
-                    
-                    const response = await fetch(url, {
-                        method: 'PATCH',
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            fields: updateFields
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('Update error:', errorData);
-                        throw new Error('Error updating task');
-                    }
-
-                    console.log('Task updated successfully');
-                    await fetchStudentData(email);
-                    
-                } catch (err) {
-                    console.error('Error marking complete:', err);
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (!isLoggedIn) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#2c0439' }}>
-                        <div className="w-full max-w-md">
-                            <div className="text-center mb-8">
-                                <h1 className="text-4xl font-bold text-white mb-2">🎮 My Learning Dashboard</h1>
-                                <p className="text-gray-300">Enter your email to view your tasks</p>
-                            </div>
-                            
-                            <form onSubmit={handleLogin} className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
-                                <label className="block text-white text-sm font-medium mb-2">
-                                    Student Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="your.email@example.com"
-                                    className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-transparent focus:border-opacity-50 focus:outline-none mb-4"
-                                    style={{ borderColor: '#a37f47' }}
-                                    required
-                                />
-                                
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                                    style={{ backgroundColor: '#a37f47' }}
-                                >
-                                    {loading ? (
-                                        <span className="flex items-center justify-center">
-                                            <Loader size={20} className="mr-2" />
-                                            Loading...
-                                        </span>
-                                    ) : (
-                                        'Enter my dashboard'
-                                    )}
-                                </button>
-
-                                {error && (
-                                    <div className="mt-4 p-3 bg-red-500 bg-opacity-20 border border-red-400 rounded-lg text-white text-sm">
-                                        {error}
-                                    </div>
-                                )}
-                            </form>
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="min-h-screen p-4 md:p-8" style={{ backgroundColor: '#2c0439' }}>
-                    <div className="max-w-6xl mx-auto">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">Hello! 👋</h1>
-                                <p className="text-gray-300">{email}</p>
-                            </div>
-                            <button
-                                onClick={() => setIsLoggedIn(false)}
-                                className="px-4 py-2 rounded-lg text-white hover:opacity-80"
-                                style={{ backgroundColor: '#a37f47' }}
-                            >
-                                Logout
-                            </button>
-                        </div>
-
-                        {currentTask && (
-                            <div className="mb-8 bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-6 md:p-8 shadow-2xl border-2" style={{ borderColor: '#a37f47' }}>
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center">
-                                        <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ backgroundColor: '#a37f47' }}>
-                                            <Calendar size={24} className="text-white" />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">New Task Assigned</h2>
-                                            <p className="text-gray-300 text-sm">In progress</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <p className="text-white text-lg mb-6">{currentTask.tarea}</p>
-                                
-                                {currentTask.proxTarea && (
-                                    <div className="mb-4 p-4 bg-white bg-opacity-10 rounded-lg border border-white border-opacity-20">
-                                        <p className="text-sm text-gray-300 mb-1">📋 Next task:</p>
-                                        <p className="text-white">{currentTask.proxTarea}</p>
-                                    </div>
-                                )}
-                                
-                                <button
-                                    onClick={() => markTaskComplete(currentTask.id)}
-                                    disabled={loading}
-                                    className="flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                                    style={{ backgroundColor: '#a37f47' }}
-                                >
-                                    {loading ? (
-                                        <>
-                                            <Loader size={20} className="mr-2" />
-                                            Processing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle size={20} className="mr-2" />
-                                            Mark as completed
-                                            {currentTask.proxTarea && ' and move to next'}
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        )}
-
-                        {!currentTask && (
-                            <div className="mb-8 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 text-center">
-                                <CheckCircle size={48} style={{ color: '#a37f47' }} className="mx-auto mb-4" />
-                                <h2 className="text-2xl font-bold text-white mb-2">All caught up!</h2>
-                                <p className="text-gray-300">You have no pending tasks at the moment</p>
-                            </div>
-                        )}
-
-                        <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 md:p-8 mb-8">
-                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-                                <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3" style={{ backgroundColor: '#a37f47' }}>
-                                    📜
-                                </span>
-                                My Progress
-                            </h2>
-
-                            <div className="relative">
-                                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-white bg-opacity-20"></div>
-
-                                {tasks.length > 0 ? (
-                                    tasks.map((task, index) => (
-                                        <div key={task.id} className="relative pl-12 pb-8">
-                                            <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#a37f47' }}>
-                                                <CheckCircle size={20} className="text-white" />
-                                            </div>
-                                            <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
-                                                <p className="text-white font-medium mb-1">{task.tarea}</p>
-                                                <p className="text-sm text-gray-400">✓ Completed</p>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="relative pl-12 pb-8">
-                                        <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20">
-                                            <Circle size={20} className="text-white" />
-                                        </div>
-                                        <div className="bg-white bg-opacity-5 rounded-lg p-4 border border-white border-opacity-10">
-                                            <p className="text-gray-400">You haven't completed any tasks yet</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="relative pl-12">
-                                    <div className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#a37f47' }}>
-                                        <Target size={20} className="text-white" />
-                                    </div>
-                                    <div className="rounded-lg p-6 border-2" style={{ 
-                                        backgroundColor: '#2c0439',
-                                        borderColor: '#a37f47'
-                                    }}>
-                                        <h3 className="text-xl font-bold text-white mb-2">🎯 Your Goal</h3>
-                                        <p className="text-white text-lg">{objetivo}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
-                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{tasks.length}</p>
-                                <p className="text-white">Tasks Completed</p>
-                            </div>
-                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
-                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>{currentTask ? 1 : 0}</p>
-                                <p className="text-white">Active Task</p>
-                            </div>
-                            <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-center">
-                                <p className="text-4xl font-bold mb-2" style={{ color: '#a37f47' }}>
-                                    {tasks.length > 0 ? Math.round((tasks.length / (tasks.length + (currentTask ? 1 : 0))) * 100) : 0}%
-                                </p>
-                                <p className="text-white">Progress</p>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h2>📊 Your Progress Timeline</h2>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">
+                    <span class="progress-text" id="progressPercent">0%</span>
                 </div>
-            );
-        };
+            </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<StudentDashboard />);
+            <div class="progress-info">
+                <span>Started: <strong id="startDate">-</strong></span>
+                <span>Latest: <strong id="latestTask">-</strong></span>
+            </div>
+
+            <div class="goal-section">
+                <h3>🎯 Your Ultimate Goal</h3>
+                <div class="goal-text" id="userGoal">Master the fundamentals and achieve excellence</div>
+            </div>
+        </div>
+
+        <!-- Airtable Interface -->
+        <div class="interface-container">
+            <h2>📚 Your Current Tasks</h2>
+            <div class="loading" id="loadingMessage">Loading your dashboard</div>
+            <iframe 
+                id="airtableFrame"
+                class="airtable-iframe" 
+                src=""
+                style="display: none;"
+                frameborder="0"
+                onload="handleIframeLoad()"
+            ></iframe>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        // Motivational quotes about work, travel, and knowledge (in English)
+        const quotes = [
+            { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+            { text: "Travel is the only thing you buy that makes you richer.", author: "Anonymous" },
+            { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+            { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+            { text: "Not all those who wander are lost.", author: "J.R.R. Tolkien" },
+            { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
+            { text: "The world is a book, and those who do not travel read only one page.", author: "Saint Augustine" },
+            { text: "Education is the passport to the future.", author: "Malcolm X" },
+            { text: "Work hard in silence, let success make the noise.", author: "Frank Ocean" },
+            { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" },
+            { text: "Knowledge is power. Information is liberating.", author: "Kofi Annan" },
+            { text: "Travel makes one modest. You see what a tiny place you occupy in the world.", author: "Gustave Flaubert" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Learning is a treasure that will follow its owner everywhere.", author: "Chinese Proverb" },
+            { text: "Adventure is worthwhile in itself.", author: "Amelia Earhart" },
+            { text: "Continuous learning is the minimum requirement for success.", author: "Brian Tracy" },
+            { text: "Work gives you meaning and purpose and life is empty without it.", author: "Stephen Hawking" },
+            { text: "To travel is to live.", author: "Hans Christian Andersen" },
+            { text: "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.", author: "Brian Herbert" },
+            { text: "Jobs fill your pocket, but adventures fill your soul.", author: "Jamie Lyn Beatty" }
+        ];
+
+        // Get quote of the day (based on date)
+        function getDailyQuote() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const quoteIndex = dayOfYear % quotes.length;
+            return quotes[quoteIndex];
+        }
+
+        // Initialize
+        function init() {
+            // Set daily quote
+            const dailyQuote = getDailyQuote();
+            document.getElementById('dailyQuote').textContent = `"${dailyQuote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `— ${dailyQuote.author}`;
+
+            // Set current date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+            // Set Airtable iframe URL - Public interface
+            const airtableUrl = 'https://airtable.com/appyWFDAlx4JXBKJ1/pagUhJFYawqoDlxZL?share=show';
+            document.getElementById('airtableFrame').src = airtableUrl;
+
+            // Simulate loading stats (in real scenario, fetch from Airtable)
+            setTimeout(() => {
+                document.getElementById('completedTasks').textContent = '0';
+                document.getElementById('currentStreak').textContent = '1';
+                document.getElementById('totalProgress').textContent = '0%';
+                
+                // Animate progress bar
+                setTimeout(() => {
+                    const progressBar = document.getElementById('progressBar');
+                    const progressPercent = document.getElementById('progressPercent');
+                    progressBar.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                }, 500);
+
+                document.getElementById('startDate').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                document.getElementById('latestTask').textContent = 'Getting started';
+            }, 1000);
+        }
+
+        function handleIframeLoad() {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('airtableFrame').style.display = 'block';
+        }
+
+        // Celebration effect for task completion
+        function celebrate() {
+            const celebration = document.getElementById('celebration');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = ['#a37f47', '#d4af37', '#fff'][Math.floor(Math.random() * 3)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animation = `confetti ${2 + Math.random() * 2}s linear forwards`;
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
